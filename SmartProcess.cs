@@ -124,9 +124,25 @@ namespace MyNrf.这里写仿真程序
         int endPullLine = 0;
         int startPullLine = 0;
 
+        
+        int secondRightUpRow = 0;
+        int secondRightJumpRow = 0;
+        int isSecondRightJumpFinish = 0;
+
+        int secondLeftUpRow = 0;
+        int secondLeftJumpRow = 0;
+        int isSecondLeftJumpFinish = 0;
+
         int carRow = 0;
-        //int Cruciate = 0;
-        //int Cactus = 0;
+        int rightFindCarFlag = 0;
+        int leftFindCarFlag = 0;
+
+        int secondFindBlackWriteRow = 0;
+        int secondFindWriteBlackRow = 0;
+        int secondFindBlackWriteFlag = 0;
+        int beginBlack = 0;
+
+        int carFlag = 0;
 
         #endregion
 
@@ -232,6 +248,26 @@ namespace MyNrf.这里写仿真程序
 
             leftEndLineGet = 0;
             rightEndLineGet = 0;
+
+
+            secondLeftUpRow = 0;
+            secondLeftJumpRow = 0;
+            isSecondLeftJumpFinish = 0;
+
+            secondRightUpRow = 0;
+            secondRightJumpRow = 0;
+            isSecondRightJumpFinish = 0;
+            rightFindCarFlag = 0;
+            leftFindCarFlag = 0;
+           
+
+            secondFindBlackWriteRow = 0;
+            secondFindWriteBlackRow = 0;
+            secondFindBlackWriteFlag = 0;
+
+            carRow = 0;
+            carFlag = 0;
+            beginBlack = 0;
             
         }
 
@@ -322,13 +358,16 @@ namespace MyNrf.这里写仿真程序
             //截断的判断
             if (RowNum >= 10 && RowNum <= 65 && cutStart == 0)
             {
-                if (P_Pixels[RowNum + 4, center[RowNum]] == 0)//当前行向上四行为黑
+                if (P_Pixels[RowNum + 1, center[RowNum]] == 0
+                    && P_Pixels[RowNum + 2, center[RowNum]] == 0)//当前行向上1 2行为黑
                 {
-                    cutStart = 1;//暂时截断
 
-                    if( (P_Pixels[RowNum + 4, (center[RowNum] + right[RowNum]) / 2] != 0
-                        || P_Pixels[RowNum + 4, (center[RowNum] + left[RowNum]) / 2] != 0))
-                        cutStart = 0;
+                    if (P_Pixels[RowNum + 1, (right[RowNum] * 2 + center[RowNum]) / 3] == 0  //左中右线1/3处都为黑 截断
+                      && P_Pixels[RowNum + 1, (left[RowNum] * 2 + center[RowNum]) / 3] == 0 //避开了车对截断的影响
+                      && P_Pixels[RowNum + 2, (left[RowNum] * 2 + center[RowNum]) / 3] == 0
+                      && P_Pixels[RowNum + 2, (left[RowNum] * 2 + center[RowNum]) / 3] == 0)
+                        cutStart = 1;
+                    
                 }
 
                 if(right[RowNum] >= 180||left[RowNum]<=10)
@@ -350,17 +389,20 @@ namespace MyNrf.这里写仿真程序
                 //后车
                 LStart[RowNum + 1] = Sv_OutLine(left[RowNum] - 2);
                 RStart[RowNum + 1] = Sv_OutLine(right[RowNum] + 2);
-                while (LStart[RowNum + 1] > center[RowNum] && P_Pixels[RowNum + 1, LStart[RowNum + 1]] == 0 && LStart[RowNum + 1]>=6)
+                while (//LStart[RowNum + 1] > center[RowNum] 
+                    P_Pixels[RowNum + 1, LStart[RowNum + 1]] == 0 
+                    && LStart[RowNum + 1]>=6)
                 {
                     LStart[RowNum + 1] = LStart[RowNum + 1] - 1;
                 }
-                while (RStart[RowNum + 1] < center[RowNum] && P_Pixels[RowNum + 1, RStart[RowNum + 1]] == 0 && RStart[RowNum + 1]<=193) 
+                while (//RStart[RowNum + 1] < center[RowNum] 
+                     P_Pixels[RowNum + 1, RStart[RowNum + 1]] == 0 
+                    && RStart[RowNum + 1]<=193) 
                 {
                     RStart[RowNum + 1] = RStart[RowNum + 1] + 1;
                 }
                 //
             }
-            
           
         }
 
@@ -1013,9 +1055,10 @@ namespace MyNrf.这里写仿真程序
             */
             #endregion  
 
+            
             if (secondCar >= 1)
             {
-
+                #region 后车十字
                 if (straightCross == 0)
                 {
                     for (i = 5; i < MinNum(45,cutRow); i++)
@@ -1114,7 +1157,256 @@ namespace MyNrf.这里写仿真程序
                            
                     }
                 }
+             #endregion
 
+                #region 
+
+                for (i = 4; i < cutRow; i++)
+                {
+                    if (right[i] - right[i - 1] > 0
+                        && right[i - 1] - right[i - 2] > 0
+                        && right[i - 2] - right[i - 3] > 0
+                        && right[i - 3] - right[i - 4] > 0)
+                        secondRightUpRow = i;
+                    if (right[i - 2] - right[i] >= 4
+                        && right[i - 3] - right[i - 1] >= 4)
+                    {
+                        isSecondRightJumpFinish = 1;
+                        secondRightJumpRow = i;
+                    }
+                    if (isSecondRightJumpFinish == 1
+                        && secondRightJumpRow != 0
+                        && secondRightUpRow != 0)  
+                    {
+                        isSecondRightJumpFinish = 0;
+                        if (secondRightJumpRow - secondRightUpRow <= 20
+                            && secondRightJumpRow >= secondRightUpRow) 
+                        {
+                            rightFindCarFlag = 1;
+                            carRow = i;
+                            break;
+                        }
+                            
+                    }
+                }
+
+                for (i = 4; i < cutRow; i++)
+                {
+                    if (left[i - 1] > left[i] 
+                        && left[i - 2] - left[i - 1] > 0
+                        && left[i - 3] - left[i - 2] > 0
+                        && left[i - 4] - left[i - 3] > 0)
+                        secondLeftUpRow = i;
+                    if (left[i] - left[i - 2] >= 4
+                        && left[i - 1] - left[i - 3] >= 4)
+                    {
+                        isSecondLeftJumpFinish = 1;
+                        secondLeftJumpRow = i;
+                    }
+                    if (isSecondLeftJumpFinish == 1
+                        && secondLeftJumpRow != 0
+                        && secondLeftUpRow != 0)
+                    {
+                        isSecondLeftJumpFinish = 0;
+                        if (secondLeftJumpRow - secondLeftUpRow <= 20
+                            && secondLeftJumpRow >= secondLeftUpRow)
+                        {
+                            leftFindCarFlag = 1;
+                            carRow = i;
+                            break;
+                        }
+
+                    }
+                }
+                
+                #region 右边 判断形状 和距离
+                if (rightFindCarFlag == 1)
+                {
+                    for (i = 3; i < cutRow; i++)
+                    {
+                        if (beginBlack == 0 && P_Pixels[i - 2, right[carRow - 2]] != 0)
+                        {
+                            beginBlack = 1;
+                        }
+                        if (P_Pixels[i, right[carRow - 2]] != 0
+                            && P_Pixels[i - 1, right[carRow - 2]] != 0
+                            && P_Pixels[i - 2, right[carRow - 2]] == 0
+                            && P_Pixels[i - 3, right[carRow - 2]] == 0
+                            //&& P_Pixels[i - 4, right[carRow - 2]] == 0
+                            //&& P_Pixels[i - 5, right[carRow - 2]] == 0
+                            && right[carRow - 2] < left[i]
+                            && beginBlack == 1) 
+                        {
+                            secondFindBlackWriteRow = i;
+                            secondFindBlackWriteFlag = 1;
+                        }
+                        if (P_Pixels[i, right[carRow - 2]] == 0
+                            && P_Pixels[i - 1, right[carRow - 2]] == 0
+                            && P_Pixels[i - 2, right[carRow - 2]] != 0
+                            && P_Pixels[i - 3, right[carRow - 2]] != 0
+                            //&& P_Pixels[i - 4, right[carRow - 2]] != 0
+                            //&& P_Pixels[i - 5, right[carRow - 2]] != 0
+                            && right[carRow - 2] < left[i]
+                            && secondFindBlackWriteFlag == 1) 
+                        {
+                            secondFindWriteBlackRow = i;
+                        }
+                        if (secondFindBlackWriteRow != 0
+                            && secondFindWriteBlackRow != 0
+                            && secondFindBlackWriteRow < secondFindWriteBlackRow
+                            && secondFindWriteBlackRow - secondFindBlackWriteRow <= 12)
+                        {
+                            carFlag = 1;
+                            carRow = i;
+                            break;
+                        }
+                    }
+                    //换一列再捅
+                    if (carFlag == 0)
+                    {
+                        secondFindBlackWriteRow = 0;
+                        secondFindWriteBlackRow = 0;
+                        secondFindBlackWriteFlag = 0;
+                        beginBlack = 0;
+                        if (beginBlack == 0 && P_Pixels[i - 2, right[carRow]] != 0)
+                        {
+                            beginBlack = 1;
+                        }
+                        for (i = 5; i < cutRow; i++)
+                        {
+                            if (P_Pixels[i, right[carRow]] != 0
+                                && P_Pixels[i - 1, right[carRow]] != 0
+                                && P_Pixels[i - 2, right[carRow]] == 0
+                                && P_Pixels[i - 3, right[carRow]] == 0
+                                //&& P_Pixels[i - 4, right[carRow]] == 0
+                                //&& P_Pixels[i - 5, right[carRow]] == 0
+                                && right[carRow] < left[i]
+                                && beginBlack == 1) 
+                            {
+                                secondFindBlackWriteRow = i;
+                                secondFindBlackWriteFlag = 1;
+                            }
+                            if (P_Pixels[i, right[carRow]] == 0
+                                && P_Pixels[i - 1, right[carRow]] == 0
+                                && P_Pixels[i - 2, right[carRow]] != 0
+                                && P_Pixels[i - 3, right[carRow]] != 0
+                                //&& P_Pixels[i - 4, right[carRow]] != 0
+                                //&& P_Pixels[i - 5, right[carRow]] != 0
+                                && right[carRow] < left[i]
+                                && secondFindBlackWriteFlag == 1)
+                            {
+                                secondFindWriteBlackRow = i;
+                            }
+                            if (secondFindBlackWriteRow != 0
+                                && secondFindWriteBlackRow != 0
+                                && secondFindBlackWriteRow < secondFindWriteBlackRow
+                                && secondFindWriteBlackRow - secondFindBlackWriteRow <= 12)
+                            {
+                                carFlag = 1;
+                                carRow = i;
+                                break;
+                            }
+                        }
+                    }
+                }
+                #endregion
+
+                #region 左边 判断形状 和距离
+                if (leftFindCarFlag == 1)
+                {
+                    for (i = 3; i < cutRow; i++)
+                    {
+                        if (beginBlack == 0 && P_Pixels[i - 2, left[carRow - 2]] != 0)
+                        {
+                            beginBlack = 1;
+                        }
+                        if (P_Pixels[i, left[carRow - 2]] != 0
+                            && P_Pixels[i - 1, left[carRow - 2]] != 0
+                            && P_Pixels[i - 2, left[carRow - 2]] == 0
+                            && P_Pixels[i - 3, left[carRow - 2]] == 0
+                            //&& P_Pixels[i - 4, right[carRow - 2]] == 0
+                            //&& P_Pixels[i - 5, right[carRow - 2]] == 0
+                            && left[carRow - 2] > right[i]
+                            &&beginBlack == 1)
+                        {
+                            secondFindBlackWriteRow = i;
+                            secondFindBlackWriteFlag = 1;
+                        }
+                        if (P_Pixels[i, left[carRow - 2]] == 0
+                            && P_Pixels[i - 1, left[carRow - 2]] == 0
+                            && P_Pixels[i - 2, left[carRow - 2]] != 0
+                            && P_Pixels[i - 3, left[carRow - 2]] != 0
+                            //&& P_Pixels[i - 4, right[carRow - 2]] != 0
+                            //&& P_Pixels[i - 5, right[carRow - 2]] != 0
+                            && left[carRow - 2] < right[i]
+                            && secondFindBlackWriteFlag == 1)
+                        {
+                            secondFindWriteBlackRow = i;
+                        }
+                        if (secondFindBlackWriteRow != 0
+                            && secondFindWriteBlackRow != 0
+                            && secondFindBlackWriteRow < secondFindWriteBlackRow
+                            && secondFindWriteBlackRow - secondFindBlackWriteRow <= 12)
+                        {
+                            carFlag = 1;
+                            carRow = i;
+                            break;
+                        }
+                    }
+                    //换一列再捅
+                    if (carFlag == 0)
+                    {
+                        secondFindBlackWriteRow = 0;
+                        secondFindWriteBlackRow = 0;
+                        secondFindBlackWriteFlag = 0;
+                        for (i = 3; i < cutRow; i++)
+                        {
+                            if (beginBlack == 0 && P_Pixels[i - 2, left[carRow]] != 0)
+                            {
+                                beginBlack = 1;
+                            }
+                            if (P_Pixels[i, left[carRow]] != 0
+                                && P_Pixels[i - 1, left[carRow]] != 0
+                                && P_Pixels[i - 2, left[carRow]] == 0
+                                && P_Pixels[i - 3, left[carRow]] == 0
+                                //&& P_Pixels[i - 4, right[carRow - 2]] == 0
+                                //&& P_Pixels[i - 5, right[carRow - 2]] == 0
+                                && left[carRow] > right[i]
+                                &&beginBlack == 1)
+                            {
+                                secondFindBlackWriteRow = i;
+                                secondFindBlackWriteFlag = 1;
+                            }
+                            if (P_Pixels[i, left[carRow]] == 0
+                                && P_Pixels[i - 1, left[carRow]] == 0
+                                && P_Pixels[i - 2, left[carRow]] != 0
+                                && P_Pixels[i - 3, left[carRow]] != 0
+                                //&& P_Pixels[i - 4, right[carRow - 2]] != 0
+                                //&& P_Pixels[i - 5, right[carRow - 2]] != 0
+                                && left[carRow] > right[i]
+                                && secondFindBlackWriteFlag == 1)
+                            {
+                                secondFindWriteBlackRow = i;
+                            }
+                            if (secondFindBlackWriteRow != 0
+                                && secondFindWriteBlackRow != 0
+                                && secondFindBlackWriteRow < secondFindWriteBlackRow
+                                && secondFindWriteBlackRow - secondFindBlackWriteRow <= 12)
+                            {
+                                carFlag = 1;
+                                carRow = i;
+                                break;
+                            }
+                        }
+                    }
+                }
+                #endregion
+
+                #endregion
+                if (carFlag == 1)
+                {
+                    setText用户自定义("前车在"+carRow+"行");
+                }
             }
 
             #region 显示上位机
