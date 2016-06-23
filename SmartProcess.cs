@@ -142,7 +142,8 @@ namespace MyNrf.这里写仿真程序
         int secondFindBlackWriteFlag = 0;
         int beginBlack = 0;
 
-        int carFlag = 0;
+        int leftCarFlag = 0;
+        int rightCarFlag = 0;
 
         int tongCarFlag = 0;
         int tongXian = 0;
@@ -269,7 +270,8 @@ namespace MyNrf.这里写仿真程序
             secondFindBlackWriteFlag = 0;
 
             carRow = 0;
-            carFlag = 0;
+            leftCarFlag = 0;
+            rightCarFlag = 0;
             beginBlack = 0;
             tongCarFlag = 0;
             
@@ -1259,14 +1261,14 @@ namespace MyNrf.这里写仿真程序
                             && secondFindBlackWriteRow < secondFindWriteBlackRow
                             && secondFindWriteBlackRow - secondFindBlackWriteRow <= 12)
                         {
-                            carFlag = 1;
+                             rightCarFlag= 1;
                             carRow = i;
                             setText用户自定义("右边 形状行数 -2 " + secondFindBlackWriteRow + " " + secondFindWriteBlackRow);
                             break;
                         }
                     }
                     //换一列再捅
-                    if (carFlag == 0)
+                    if (rightCarFlag == 0)
                     {
                         secondFindBlackWriteRow = 0;
                         secondFindWriteBlackRow = 0;
@@ -1304,7 +1306,7 @@ namespace MyNrf.这里写仿真程序
                                 && secondFindBlackWriteRow < secondFindWriteBlackRow
                                 && secondFindWriteBlackRow - secondFindBlackWriteRow <= 12)
                             {
-                                carFlag = 1;
+                                rightCarFlag = 1;
                                 carRow = i;
                                 setText用户自定义("右边 形状行数" + secondFindBlackWriteRow + " " + secondFindWriteBlackRow);
                                 break;
@@ -1353,14 +1355,14 @@ namespace MyNrf.这里写仿真程序
                             && secondFindBlackWriteRow < secondFindWriteBlackRow
                             && secondFindWriteBlackRow - secondFindBlackWriteRow <= 12)
                         {
-                            carFlag = 1;
+                            leftCarFlag = 1;
                             carRow = i;
                             setText用户自定义("左边 形状行数 -2 " + secondFindBlackWriteRow + " " + secondFindWriteBlackRow);
                             break;
                         }
                     }
                     //换一列再捅
-                    if (carFlag == 0)
+                    if (leftCarFlag == 0)
                     {
                         secondFindBlackWriteRow = 0;
                         secondFindWriteBlackRow = 0;
@@ -1397,7 +1399,7 @@ namespace MyNrf.这里写仿真程序
                                 && secondFindBlackWriteRow < secondFindWriteBlackRow
                                 && secondFindWriteBlackRow - secondFindBlackWriteRow <= 12)
                             {
-                                carFlag = 1;
+                                leftCarFlag = 1;
                                 carRow = i;
                                 setText用户自定义("左边 形状行数" + secondFindBlackWriteRow + " " + secondFindWriteBlackRow);
                                 break;
@@ -1408,33 +1410,26 @@ namespace MyNrf.这里写仿真程序
                 #endregion
 
                 #region 单边补线
-                if(carFlag == 1)
+                if (rightFindCarFlag == 1 && rightCarFlag == 1)
                 {
-                    if(rightFindCarFlag == 1)
+                    for (i = 1; i < cutRow; i++)
                     {
-                        for (i = 1; i < cutRow; i++)
-                        {
-                            center[i] = center[i - 1] + left[i] - left[i - 1];
-                        }
+                        center[i] = center[i - 1] + left[i] - left[i - 1];
                     }
-                    if(leftFindCarFlag == 1)
+                }
+                if (leftFindCarFlag == 1 && leftCarFlag == 1)
+                {
+                    for (i = 1; i < cutRow; i++)
                     {
-                        for (i = 1; i < cutRow; i++)
-                        {
-                            center[i] = center[i - 1] + right[i] - right[i - 1];
-                        }
+                        center[i] = center[i - 1] + right[i] - right[i - 1];
                     }
                 }
                 #endregion
 
                 #region  捅线 5次
-                if (carFlag == 0)
+                if (leftCarFlag == 0 && rightCarFlag == 0) 
                 {
                     tongXian = center[0];
-                    //tongXian[1] = (left[0] * 2 + center[0]) / 3;
-                    //tongXian[2] = (right[0] * 2 + center[0]) / 3;
-                    //tongXian[3] = (left[0] + center[0] * 2) / 3;
-                    //tongXian[4] = (right[0] + center[0] * 2) / 3;
                     //计算捅线点
                     secondFindBlackWriteRow = 0;
                     secondFindWriteBlackRow = 0;
@@ -1481,214 +1476,215 @@ namespace MyNrf.这里写仿真程序
                             break;
                         }
                     }
-                }
-                /**********换一个点再捅***********/
-                if (tongCarFlag == 0)
-                {
-                    tongXian = (left[0] * 3 + center[0]) / 4;
-                    //计算捅线点
-                    secondFindBlackWriteRow = 0;
-                    secondFindWriteBlackRow = 0;
-                    secondFindBlackWriteFlag = 0;
-                    beginBlack = 0;
-
-                    for (i = 5; i < MinNum(cutRow, 65); i++)
+                    /**********换一个点再捅***********/
+                    if (tongCarFlag == 0)
                     {
-                        if (beginBlack == 0
-                        && P_Pixels[i - 2, tongXian] != 0
-                        && P_Pixels[i - 3, tongXian] != 0)
+                        tongXian = (left[0] * 3 + center[0]) / 4;
+                        //计算捅线点
+                        secondFindBlackWriteRow = 0;
+                        secondFindWriteBlackRow = 0;
+                        secondFindBlackWriteFlag = 0;
+                        beginBlack = 0;
+
+                        for (i = 5; i < MinNum(cutRow, 65); i++)
                         {
-                            beginBlack = 1;
-                        }
-                        if (P_Pixels[i, tongXian] != 0
-                            && P_Pixels[i - 1, tongXian] != 0
-                            && P_Pixels[i - 2, tongXian] == 0
-                            && P_Pixels[i - 3, tongXian] == 0
-                            && tongXian <= left[i]
-                            && tongXian >= right[i]
-                            && beginBlack == 1)
-                        {
-                            secondFindBlackWriteRow = i;
-                            secondFindBlackWriteFlag = 1;
-                        }
-                        if (P_Pixels[i, tongXian] == 0
-                            && P_Pixels[i - 1, tongXian] == 0
+                            if (beginBlack == 0
                             && P_Pixels[i - 2, tongXian] != 0
-                            && P_Pixels[i - 3, tongXian] != 0
-                            && tongXian <= left[i]
-                            && tongXian >= right[i]
-                            && secondFindBlackWriteFlag == 1)
-                        {
-                            secondFindWriteBlackRow = i;
+                            && P_Pixels[i - 3, tongXian] != 0)
+                            {
+                                beginBlack = 1;
+                            }
+                            if (P_Pixels[i, tongXian] != 0
+                                && P_Pixels[i - 1, tongXian] != 0
+                                && P_Pixels[i - 2, tongXian] == 0
+                                && P_Pixels[i - 3, tongXian] == 0
+                                && tongXian <= left[i]
+                                && tongXian >= right[i]
+                                && beginBlack == 1)
+                            {
+                                secondFindBlackWriteRow = i;
+                                secondFindBlackWriteFlag = 1;
+                            }
+                            if (P_Pixels[i, tongXian] == 0
+                                && P_Pixels[i - 1, tongXian] == 0
+                                && P_Pixels[i - 2, tongXian] != 0
+                                && P_Pixels[i - 3, tongXian] != 0
+                                && tongXian <= left[i]
+                                && tongXian >= right[i]
+                                && secondFindBlackWriteFlag == 1)
+                            {
+                                secondFindWriteBlackRow = i;
+                            }
+                            if (secondFindBlackWriteRow != 0
+                                && secondFindWriteBlackRow != 0
+                                && secondFindBlackWriteRow < secondFindWriteBlackRow
+                                && secondFindWriteBlackRow - secondFindBlackWriteRow <= 12)
+                            {
+                                tongCarFlag = 1;
+                                carRow = i;
+                                setText用户自定义("捅到线1");
+                                break;
+                            }
                         }
-                        if (secondFindBlackWriteRow != 0
-                            && secondFindWriteBlackRow != 0
-                            && secondFindBlackWriteRow < secondFindWriteBlackRow
-                            && secondFindWriteBlackRow - secondFindBlackWriteRow <= 12)
+                    }
+                    /**********换一个点再捅***********/
+                    if (tongCarFlag == 0)
+                    {
+                        tongXian = (right[0] * 3 + center[0]) / 4;
+                        //计算捅线点
+                        secondFindBlackWriteRow = 0;
+                        secondFindWriteBlackRow = 0;
+                        secondFindBlackWriteFlag = 0;
+                        beginBlack = 0;
+
+                        for (i = 5; i < MinNum(cutRow, 65); i++)
                         {
-                            tongCarFlag = 1;
-                            carRow = i;
-                            setText用户自定义("捅到线1");
-                            break;
+                            if (beginBlack == 0
+                            && P_Pixels[i - 2, tongXian] != 0
+                            && P_Pixels[i - 3, tongXian] != 0)
+                            {
+                                beginBlack = 1;
+                            }
+                            if (P_Pixels[i, tongXian] != 0
+                                && P_Pixels[i - 1, tongXian] != 0
+                                && P_Pixels[i - 2, tongXian] == 0
+                                && P_Pixels[i - 3, tongXian] == 0
+                                && tongXian <= left[i]
+                                && tongXian >= right[i]
+                                && beginBlack == 1)
+                            {
+                                secondFindBlackWriteRow = i;
+                                secondFindBlackWriteFlag = 1;
+                            }
+                            if (P_Pixels[i, tongXian] == 0
+                                && P_Pixels[i - 1, tongXian] == 0
+                                && P_Pixels[i - 2, tongXian] != 0
+                                && P_Pixels[i - 3, tongXian] != 0
+                                && tongXian <= left[i]
+                                && tongXian >= right[i]
+                                && secondFindBlackWriteFlag == 1)
+                            {
+                                secondFindWriteBlackRow = i;
+                            }
+                            if (secondFindBlackWriteRow != 0
+                                && secondFindWriteBlackRow != 0
+                                && secondFindBlackWriteRow < secondFindWriteBlackRow
+                                && secondFindWriteBlackRow - secondFindBlackWriteRow <= 12)
+                            {
+                                tongCarFlag = 1;
+                                carRow = i;
+                                setText用户自定义("捅到线2");
+                                break;
+                            }
+                        }
+                    }
+                    /**********换一个点再捅***********/
+                    if (tongCarFlag == 0)
+                    {
+                        tongXian = (right[0] * 2 + center[0] * 3) / 5;
+                        //计算捅线点
+                        secondFindBlackWriteRow = 0;
+                        secondFindWriteBlackRow = 0;
+                        secondFindBlackWriteFlag = 0;
+                        beginBlack = 0;
+
+                        for (i = 5; i < MinNum(cutRow, 65); i++)
+                        {
+                            if (beginBlack == 0
+                            && P_Pixels[i - 2, tongXian] != 0
+                            && P_Pixels[i - 3, tongXian] != 0)
+                            {
+                                beginBlack = 1;
+                            }
+                            if (P_Pixels[i, tongXian] != 0
+                                && P_Pixels[i - 1, tongXian] != 0
+                                && P_Pixels[i - 2, tongXian] == 0
+                                && P_Pixels[i - 3, tongXian] == 0
+                                && tongXian <= left[i]
+                                && tongXian >= right[i]
+                                && beginBlack == 1)
+                            {
+                                secondFindBlackWriteRow = i;
+                                secondFindBlackWriteFlag = 1;
+                            }
+                            if (P_Pixels[i, tongXian] == 0
+                                && P_Pixels[i - 1, tongXian] == 0
+                                && P_Pixels[i - 2, tongXian] != 0
+                                && P_Pixels[i - 3, tongXian] != 0
+                                && tongXian <= left[i]
+                                && tongXian >= right[i]
+                                && secondFindBlackWriteFlag == 1)
+                            {
+                                secondFindWriteBlackRow = i;
+                            }
+                            if (secondFindBlackWriteRow != 0
+                                && secondFindWriteBlackRow != 0
+                                && secondFindBlackWriteRow < secondFindWriteBlackRow
+                                && secondFindWriteBlackRow - secondFindBlackWriteRow <= 12)
+                            {
+                                tongCarFlag = 1;
+                                carRow = i;
+                                setText用户自定义("捅到线3");
+                                break;
+                            }
+                        }
+                    }
+                    /**********换一个点再捅***********/
+                    if (tongCarFlag == 0)
+                    {
+                        tongXian = (left[0] * 2 + center[0] * 3) / 5;
+                        //计算捅线点
+                        secondFindBlackWriteRow = 0;
+                        secondFindWriteBlackRow = 0;
+                        secondFindBlackWriteFlag = 0;
+                        beginBlack = 0;
+
+                        for (i = 5; i < MinNum(cutRow, 65); i++)
+                        {
+                            if (beginBlack == 0
+                            && P_Pixels[i - 2, tongXian] != 0
+                            && P_Pixels[i - 3, tongXian] != 0)
+                            {
+                                beginBlack = 1;
+                            }
+                            if (P_Pixels[i, tongXian] != 0
+                                && P_Pixels[i - 1, tongXian] != 0
+                                && P_Pixels[i - 2, tongXian] == 0
+                                && P_Pixels[i - 3, tongXian] == 0
+                                && tongXian <= left[i]
+                                && tongXian >= right[i]
+                                && beginBlack == 1)
+                            {
+                                secondFindBlackWriteRow = i;
+                                secondFindBlackWriteFlag = 1;
+                            }
+                            if (P_Pixels[i, tongXian] == 0
+                                && P_Pixels[i - 1, tongXian] == 0
+                                && P_Pixels[i - 2, tongXian] != 0
+                                && P_Pixels[i - 3, tongXian] != 0
+                                && tongXian <= left[i]
+                                && tongXian >= right[i]
+                                && secondFindBlackWriteFlag == 1)
+                            {
+                                secondFindWriteBlackRow = i;
+                            }
+                            if (secondFindBlackWriteRow != 0
+                                && secondFindWriteBlackRow != 0
+                                && secondFindBlackWriteRow < secondFindWriteBlackRow
+                                && secondFindWriteBlackRow - secondFindBlackWriteRow <= 12)
+                            {
+                                tongCarFlag = 1;
+                                carRow = i;
+                                setText用户自定义("捅到线4");
+                                break;
+                            }
                         }
                     }
                 }
-                /**********换一个点再捅***********/
-                if (tongCarFlag == 0)
-                {
-                    tongXian = (right[0] * 3 + center[0]) / 4;
-                    //计算捅线点
-                    secondFindBlackWriteRow = 0;
-                    secondFindWriteBlackRow = 0;
-                    secondFindBlackWriteFlag = 0;
-                    beginBlack = 0;
-
-                    for (i = 5; i < MinNum(cutRow, 65); i++)
-                    {
-                        if (beginBlack == 0
-                        && P_Pixels[i - 2, tongXian] != 0
-                        && P_Pixels[i - 3, tongXian] != 0)
-                        {
-                            beginBlack = 1;
-                        }
-                        if (P_Pixels[i, tongXian] != 0
-                            && P_Pixels[i - 1, tongXian] != 0
-                            && P_Pixels[i - 2, tongXian] == 0
-                            && P_Pixels[i - 3, tongXian] == 0
-                            && tongXian <= left[i]
-                            && tongXian >= right[i]
-                            && beginBlack == 1)
-                        {
-                            secondFindBlackWriteRow = i;
-                            secondFindBlackWriteFlag = 1;
-                        }
-                        if (P_Pixels[i, tongXian] == 0
-                            && P_Pixels[i - 1, tongXian] == 0
-                            && P_Pixels[i - 2, tongXian] != 0
-                            && P_Pixels[i - 3, tongXian] != 0
-                            && tongXian <= left[i]
-                            && tongXian >= right[i]
-                            && secondFindBlackWriteFlag == 1)
-                        {
-                            secondFindWriteBlackRow = i;
-                        }
-                        if (secondFindBlackWriteRow != 0
-                            && secondFindWriteBlackRow != 0
-                            && secondFindBlackWriteRow < secondFindWriteBlackRow
-                            && secondFindWriteBlackRow - secondFindBlackWriteRow <= 12)
-                        {
-                            tongCarFlag = 1;
-                            carRow = i;
-                            setText用户自定义("捅到线2");
-                            break;
-                        }
-                    }
-                }
-                /**********换一个点再捅***********/
-                if (tongCarFlag == 0)
-                {
-                    tongXian = (right[0]*2 + center[0]*3) / 5;
-                    //计算捅线点
-                    secondFindBlackWriteRow = 0;
-                    secondFindWriteBlackRow = 0;
-                    secondFindBlackWriteFlag = 0;
-                    beginBlack = 0;
-
-                    for (i = 5; i < MinNum(cutRow, 65); i++)
-                    {
-                        if (beginBlack == 0
-                        && P_Pixels[i - 2, tongXian] != 0
-                        && P_Pixels[i - 3, tongXian] != 0)
-                        {
-                            beginBlack = 1;
-                        }
-                        if (P_Pixels[i, tongXian] != 0
-                            && P_Pixels[i - 1, tongXian] != 0
-                            && P_Pixels[i - 2, tongXian] == 0
-                            && P_Pixels[i - 3, tongXian] == 0
-                            && tongXian <= left[i]
-                            && tongXian >= right[i]
-                            && beginBlack == 1)
-                        {
-                            secondFindBlackWriteRow = i;
-                            secondFindBlackWriteFlag = 1;
-                        }
-                        if (P_Pixels[i, tongXian] == 0
-                            && P_Pixels[i - 1, tongXian] == 0
-                            && P_Pixels[i - 2, tongXian] != 0
-                            && P_Pixels[i - 3, tongXian] != 0
-                            && tongXian <= left[i]
-                            && tongXian >= right[i]
-                            && secondFindBlackWriteFlag == 1)
-                        {
-                            secondFindWriteBlackRow = i;
-                        }
-                        if (secondFindBlackWriteRow != 0
-                            && secondFindWriteBlackRow != 0
-                            && secondFindBlackWriteRow < secondFindWriteBlackRow
-                            && secondFindWriteBlackRow - secondFindBlackWriteRow <= 12)
-                        {
-                            tongCarFlag = 1;
-                            carRow = i;
-                            setText用户自定义("捅到线3");
-                            break;
-                        }
-                    }
-                }
-                /**********换一个点再捅***********/
-                if (tongCarFlag == 0)
-                {
-                    tongXian = (left[0]*2 + center[0]*3) / 5;
-                    //计算捅线点
-                    secondFindBlackWriteRow = 0;
-                    secondFindWriteBlackRow = 0;
-                    secondFindBlackWriteFlag = 0;
-                    beginBlack = 0;
-
-                    for (i = 5; i < MinNum(cutRow, 65); i++)
-                    {
-                        if (beginBlack == 0
-                        && P_Pixels[i - 2, tongXian] != 0
-                        && P_Pixels[i - 3, tongXian] != 0)
-                        {
-                            beginBlack = 1;
-                        }
-                        if (P_Pixels[i, tongXian] != 0
-                            && P_Pixels[i - 1, tongXian] != 0
-                            && P_Pixels[i - 2, tongXian] == 0
-                            && P_Pixels[i - 3, tongXian] == 0
-                            && tongXian <= left[i]
-                            && tongXian >= right[i]
-                            && beginBlack == 1)
-                        {
-                            secondFindBlackWriteRow = i;
-                            secondFindBlackWriteFlag = 1;
-                        }
-                        if (P_Pixels[i, tongXian] == 0
-                            && P_Pixels[i - 1, tongXian] == 0
-                            && P_Pixels[i - 2, tongXian] != 0
-                            && P_Pixels[i - 3, tongXian] != 0
-                            && tongXian <= left[i]
-                            && tongXian >= right[i]
-                            && secondFindBlackWriteFlag == 1)
-                        {
-                            secondFindWriteBlackRow = i;
-                        }
-                        if (secondFindBlackWriteRow != 0
-                            && secondFindWriteBlackRow != 0
-                            && secondFindBlackWriteRow < secondFindWriteBlackRow
-                            && secondFindWriteBlackRow - secondFindBlackWriteRow <= 12)
-                        {
-                            tongCarFlag = 1;
-                            carRow = i;
-                            setText用户自定义("捅到线4");
-                            break;
-                        }
-                    }
-                }
+               
                 #endregion
 
-                if (carFlag == 1 || tongCarFlag == 1) 
+                if (leftCarFlag == 1 || tongCarFlag == 1 || rightCarFlag == 1)  
                 {
                     setText用户自定义("前车在"+carRow+"行");
                 }
