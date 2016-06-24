@@ -148,6 +148,9 @@ namespace MyNrf.这里写仿真程序
         int tongCarFlag = 0;
         int tongXian = 0;
 
+        int firstRowOutLeftCnt = 0;
+        int firstRowOutRightCnt = 0;
+
         #endregion
 
         #region 自定义
@@ -274,7 +277,9 @@ namespace MyNrf.这里写仿真程序
             rightCarFlag = 0;
             beginBlack = 0;
             tongCarFlag = 0;
-            
+
+            firstRowOutLeftCnt = 0;
+            firstRowOutRightCnt = 0;
         }
 
 
@@ -1154,10 +1159,18 @@ namespace MyNrf.这里写仿真程序
                         if(crossFristRowInto == 1)
                         {
                             setText用户自定义("第一行");
-                            if(left[0] != 198 && right[0] != 1)
+                            for (i = 0; i <= 15; i++)
+                            {
+                                if (left[i] != 198)
+                                    firstRowOutLeftCnt++;
+                                if (right[i] != 1)
+                                    firstRowOutRightCnt++;
+                            }
+                            if (firstRowOutLeftCnt == 16 || firstRowOutRightCnt == 16) 
                             {
                                 startPull = 0;
                                 straightCross = 0;
+                                crossFristRowInto = 0;
                             }
                         }
                            
