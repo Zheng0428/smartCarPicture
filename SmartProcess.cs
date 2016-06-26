@@ -103,6 +103,9 @@ namespace MyNrf.这里写仿真程序
         int centerMin = 0;
         int flagRamp = 0;
 
+        int flagOnRamp = 0;
+        int rampFinish = 0;
+
         int isStraightLine = 0;
         int flagStraightLine = 0;
 
@@ -1695,6 +1698,98 @@ namespace MyNrf.这里写仿真程序
                     }
                 }
                
+                #endregion
+
+                #region 重新拟线
+                if (straightCross == 0 && cutRow >= 55 && leftCarFlag == 0 && tongCarFlag == 0 && rightCarFlag == 0)
+                {
+                    for (i = 2; i < cutRow; i++)
+                    {
+                        if (left[i] != 198 && right[i] != 1
+                            && (left[i - 2] == 198 || right[i - 2] == 1)
+                            && fabs(center[i] - center[i - 2]) >= 10)
+                        {
+                            setText用户自定义("补线重新扫 " + i);
+                            wrongFillRow = i;
+                            wrongFillFlag = 1;
+                            break;
+                        }
+
+                    }
+                }
+
+                if (wrongFillFlag == 1)
+                {
+                    for (i = wrongFillRow - 1; i > 0; i--)
+                    {
+                        center[i] = (left[i] + right[i]) / 2;
+                    }
+                }
+                #endregion
+
+
+                #region 坡道
+                if (cutRow >= 65 && rampFinish == 0)
+                {
+                    for (i = 10; i < cutRow; i++)
+                    {
+                        isStraightLine = i;
+                        if (fabs(center[i] - center[i - 10]) >= 10)
+                            break;
+                    }
+                    if (isStraightLine == cutRow - 1)
+                        flagStraightLine = 1;
+                    for (i = 6; i < cutRow; i++)
+                    {
+                        if (left[i] - right[i] - fixValuve[i] >= 20 && left[i] - right[i] - fixValuve[i] <= 35 && fabs(center[i] - 100) <= 25
+                            && left[i - 3] - right[i - 3] - fixValuve[i - 3] >= 20 && left[i - 3] - right[i - 3] - fixValuve[i - 3] <= 35 && fabs(center[i - 3] - 100) <= 25
+                            && left[i - 6] - right[i - 6] - fixValuve[i - 6] >= 20 && left[i - 6] - right[i - 6] - fixValuve[i - 6] <= 35 && fabs(center[i - 6] - 100) <= 25
+                            // && left[i - 9] - right[i - 9] - fixValuve[i - 9] >= 20 && fabs(center[i - 9] - 100) <= 25
+                            && flagStraightLine == 1 && straightCross == 0 && isTurnCross == 0 && turnCross == 0)
+                        {
+                            if (flagOnRamp == 0 && flagRamp == 0)
+                            {
+                                flagRamp = 70;
+                            }
+
+                            if (flagOnRamp == 1)
+                            {
+                                flagRamp = 0;
+                                flagOnRamp = 0;
+                                rampFinish = 20;
+                            }
+                            break;
+                        }
+
+                    }
+                }
+
+                if (flagRamp > 0 && flagOnRamp == 0)
+                {
+                    for (i = 6; i < cutRow; i++)
+                    {
+                        if (fixValuve[i] - (left[i] - right[i]) >= 15
+                            && fixValuve[i - 3] - (left[i - 3] - right[i - 3]) >= 15
+                            && fixValuve[i - 6] - (left[i - 6] - right[i - 6]) >= 15)
+                        {
+                            setText用户自定义("上坡中" + i);
+                            flagOnRamp = 1;
+                            break;
+                        }
+
+                    }
+                }
+                if (rampFinish > 0)
+                {
+                    rampFinish--;
+                }
+                if (flagRamp > 0)
+                {
+                    flagRamp--;
+                    if (flagRamp == 0)
+                        rampFinish = 20;
+                    setText用户自定义("坡道" + flagRamp);
+                }
                 #endregion
 
                 if (leftCarFlag == 1 || tongCarFlag == 1 || rightCarFlag == 1)  
